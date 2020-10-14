@@ -6,7 +6,8 @@ min_support = 0.05
 conf = 0.1
 
 # Dataset 1
-groceries_data_set1 <- read.transactions("./test.csv", sep = ",", rm.duplicates = TRUE)
+start_time = Sys.time()
+groceries_data_set1 <- read.transactions("~/Documents/Datasets/groceries_dataset_1.csv", sep = ",", rm.duplicates = TRUE)
 summary(groceries_data_set1)
 
 #Frequent Itemsets
@@ -26,6 +27,8 @@ summary(groceryrules_1)
 
 #print all rules
 inspect(groceryrules_1)
-
+end_time = Sys.time();
+end_time
+execution_time = end_time - start_time;
+execution_time
 ## End of Dataset 1 ##
-############################################
