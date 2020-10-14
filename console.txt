@@ -1,0 +1,163 @@
+> library(arules)
+> library(arulesViz)
+> min_length = 2
+> max_length = 2
+> min_support = 0.05
+> conf = 0.1
+> 
+> # Dataset 1
+> start_time = Sys.time()
+> groceries_data_set1 <- read.transactions("~/Documents/Datasets/groceries_dataset_1.csv", sep = ",", rm.duplicates = TRUE)
+> summary(groceries_data_set1)
+transactions as itemMatrix in sparse format with
+ 1600 rows (elements/itemsets/transactions) and
+ 164 columns (items) and a density of 0.0275343 
+
+most frequent items:
+      whole milk       rolls/buns other vegetables             soda           yogurt          (Other) 
+             410              325              313              264              228             5685 
+
+element (itemset/transaction) length distribution:
+sizes
+  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  23  26  32 
+337 260 198 181 155 101  88  68  50  46  35  18  15  12  12   5   7   3   3   1   1   2   1   1 
+
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  1.000   2.000   4.000   4.516   6.000  32.000 
+
+includes extended item information - examples:
+            labels
+1 abrasive cleaner
+2 artif. sweetener
+3   baby cosmetics
+> 
+> #Frequent Itemsets
+> #all the 2-itemsets having at least a support of 0.05
+> itemsets_1 <- apriori(
++   groceries_data_set1, 
++   parameter = list(minlen=min_length, maxlen = max_length, support = min_support, target="frequent itemsets")
++ )
+Apriori
+
+Parameter specification:
+ confidence minval smax arem  aval originalSupport maxtime support minlen maxlen            target  ext
+         NA    0.1    1 none FALSE            TRUE       5    0.05      2      2 frequent itemsets TRUE
+
+Algorithmic control:
+ filter tree heap memopt load sort verbose
+    0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+
+Absolute minimum support count: 80 
+
+set item appearances ...[0 item(s)] done [0.00s].
+set transactions ...[164 item(s), 1600 transaction(s)] done [0.00s].
+sorting and recoding items ... [28 item(s)] done [0.00s].
+creating transaction tree ... done [0.00s].
+checking subsets of size 1 2 done [0.00s].
+sorting transactions ... done [0.00s].
+writing ... [4 set(s)] done [0.00s].
+creating S4 object  ... done [0.00s].
+Warning message:
+In apriori(groceries_data_set1, parameter = list(minlen = min_length,  :
+  Mining stopped (maxlen reached). Only patterns up to a length of 2 returned!
+> summary(itemsets_1)
+set of 4 itemsets
+
+most frequent items:
+      whole milk other vegetables       rolls/buns  root vegetables           yogurt          (Other) 
+               4                1                1                1                1                0 
+
+element (itemset/transaction) length distribution:sizes
+2 
+4 
+
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+      2       2       2       2       2       2 
+
+summary of quality measures:
+    support        transIdenticalToItemsets     count       
+ Min.   :0.05250   Min.   :0.001875         Min.   : 84.00  
+ 1st Qu.:0.05250   1st Qu.:0.002344         1st Qu.: 84.00  
+ Median :0.05625   Median :0.003125         Median : 90.00  
+ Mean   :0.05984   Mean   :0.002969         Mean   : 95.75  
+ 3rd Qu.:0.06359   3rd Qu.:0.003750         3rd Qu.:101.75  
+ Max.   :0.07437   Max.   :0.003750         Max.   :119.00  
+
+includes transaction ID lists: FALSE 
+
+mining info:
+                data ntransactions support confidence
+ groceries_data_set1          1600    0.05          1
+> 
+> #print all 2-itemsets in descending order of support
+> inspect(sort(itemsets_1, by="support"))
+    items                         support  transIdenticalToItemsets count
+[1] {other vegetables,whole milk} 0.074375 0.003750                 119  
+[2] {rolls/buns,whole milk}       0.060000 0.003750                  96  
+[3] {root vegetables,whole milk}  0.052500 0.002500                  84  
+[4] {whole milk,yogurt}           0.052500 0.001875                  84  
+> 
+> #Rule Generation
+> groceryrules_1 <- apriori(groceries_data_set1, parameter = list(support =min_support, confidence = conf, minlen = min_length, target = "rules"))
+Apriori
+
+Parameter specification:
+ confidence minval smax arem  aval originalSupport maxtime support minlen maxlen target  ext
+        0.1    0.1    1 none FALSE            TRUE       5    0.05      2     10  rules TRUE
+
+Algorithmic control:
+ filter tree heap memopt load sort verbose
+    0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+
+Absolute minimum support count: 80 
+
+set item appearances ...[0 item(s)] done [0.00s].
+set transactions ...[164 item(s), 1600 transaction(s)] done [0.00s].
+sorting and recoding items ... [28 item(s)] done [0.00s].
+creating transaction tree ... done [0.00s].
+checking subsets of size 1 2 done [0.00s].
+writing ... [8 rule(s)] done [0.00s].
+creating S4 object  ... done [0.00s].
+> summary(groceryrules_1)
+set of 8 rules
+
+rule length distribution (lhs + rhs):sizes
+2 
+8 
+
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+      2       2       2       2       2       2 
+
+summary of quality measures:
+    support          confidence        coverage           lift           count       
+ Min.   :0.05250   Min.   :0.2049   Min.   :0.1150   Min.   :1.153   Min.   : 84.00  
+ 1st Qu.:0.05250   1st Qu.:0.2268   1st Qu.:0.1823   1st Qu.:1.366   1st Qu.: 84.00  
+ Median :0.05625   Median :0.2928   Median :0.2297   Median :1.461   Median : 90.00  
+ Mean   :0.05984   Mean   :0.3043   Mean   :0.2102   Mean   :1.464   Mean   : 95.75  
+ 3rd Qu.:0.06359   3rd Qu.:0.3714   3rd Qu.:0.2562   3rd Qu.:1.558   3rd Qu.:101.75  
+ Max.   :0.07437   Max.   :0.4565   Max.   :0.2562   Max.   :1.782   Max.   :119.00  
+
+mining info:
+                data ntransactions support confidence
+ groceries_data_set1          1600    0.05        0.1
+> 
+> #print all rules
+> inspect(groceryrules_1)
+    lhs                   rhs                support  confidence coverage lift     count
+[1] {root vegetables}  => {whole milk}       0.052500 0.4565217  0.115000 1.781548  84  
+[2] {whole milk}       => {root vegetables}  0.052500 0.2048780  0.256250 1.781548  84  
+[3] {yogurt}           => {whole milk}       0.052500 0.3684211  0.142500 1.437741  84  
+[4] {whole milk}       => {yogurt}           0.052500 0.2048780  0.256250 1.437741  84  
+[5] {rolls/buns}       => {whole milk}       0.060000 0.2953846  0.203125 1.152720  96  
+[6] {whole milk}       => {rolls/buns}       0.060000 0.2341463  0.256250 1.152720  96  
+[7] {other vegetables} => {whole milk}       0.074375 0.3801917  0.195625 1.483675 119  
+[8] {whole milk}       => {other vegetables} 0.074375 0.2902439  0.256250 1.483675 119  
+> end_time = Sys.time();
+> end_time
+[1] "2020-10-15 00:35:44 +08"
+> execution_time = end_time - start_time;
+> execution_time
+Time difference of 0.245049 secs
+> ## End of Dataset 1 ##
+> ############################################
+> 
