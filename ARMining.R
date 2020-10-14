@@ -6,7 +6,7 @@ min_support = 0.05
 conf = 0.1
 
 # Dataset 1
-groceries_data_set1 <- read.transactions("./groceries_dataset_1.csv", sep = ",", rm.duplicates = TRUE)
+groceries_data_set1 <- read.transactions("./test.csv", sep = ",", rm.duplicates = TRUE)
 summary(groceries_data_set1)
 
 #Frequent Itemsets
